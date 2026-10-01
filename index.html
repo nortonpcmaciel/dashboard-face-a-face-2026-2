@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Dashboard de inscrições do Homens Face a Face com Deus 2026.2"
+    />
+    <title>Dashboard | Homens Face a Face com Deus 2026.2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <header class="hero">
+      <div class="hero__image" aria-hidden="true"></div>
+      <div class="hero__shade" aria-hidden="true"></div>
+      <nav class="topbar shell" aria-label="Cabeçalho do dashboard">
+        <div class="brand-mark" aria-label="Homens Face a Face com Deus">
+          <span class="brand-mark__eyebrow">PAINEL DE</span>
+          <span class="brand-mark__title">INSCRIÇÕES</span>
+          <span class="brand-mark__script">2026.2</span>
+        </div>
+
+        <div class="live-control">
+          <span class="live-control__dot" id="connectionDot" aria-hidden="true"></span>
+          <span id="connectionLabel">Conectando à planilha...</span>
+          <button class="icon-button" id="refreshButton" type="button" aria-label="Atualizar dados">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 11a8.1 8.1 0 0 0-15.5-3M4 4v4h4M4 13a8.1 8.1 0 0 0 15.5 3M20 20v-4h-4" />
+            </svg>
+          </button>
+        </div>
+      </nav>
+
+      <div class="hero__content shell">
+        <div>
+          <p class="section-kicker">ENCONTRO</p>
+          <h1>Homens Face a Face<br /><span>com Deus</span></h1>
+          <p class="hero__copy">
+            Uma visão atualizada do perfil dos participantes para apoiar acolhimento,
+            organização e cuidado.
+          </p>
+        </div>
+
+        <div class="event-pill">
+          <span class="event-pill__label">DATA DO EVENTO</span>
+          <strong>09–11 OUT</strong>
+          <span>2026</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="shell dashboard">
+      <section class="status-banner" id="statusBanner" hidden aria-live="polite">
+        <div>
+          <strong id="statusTitle">Visualização local ativa</strong>
+          <span id="statusText">Exibindo o último retrato disponível da planilha.</span>
+        </div>
+        <button id="statusRetry" type="button">Tentar novamente</button>
+      </section>
+
+      <section class="metrics-grid" aria-label="Indicadores principais">
+        <article class="metric metric--featured">
+          <div class="metric__icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </div>
+          <div>
+            <p>Inscrições</p>
+            <div class="metric__count">
+              <strong id="totalRegistrations">0</strong>
+              <span id="registrationCaption">respostas recebidas</span>
+            </div>
+          </div>
+          <div class="metric__spark" aria-hidden="true"></div>
+        </article>
+
+        <article class="metric metric--confirmed">
+          <p>Confirmados</p>
+          <div class="metric__value"><strong id="confirmedCount">0</strong></div>
+          <div class="mini-progress"><span id="confirmedProgress"></span></div>
+          <small id="confirmedCaption">0 com confirmação PAGO</small>
+        </article>
+
+        <article class="metric">
+          <p>Idade média</p>
+          <div class="metric__value"><strong id="averageAge">0</strong><span>anos</span></div>
+          <small id="ageRange">Faixa de 0 a 0 anos</small>
+        </article>
+
+        <article class="metric">
+          <p>Batizados nas águas</p>
+          <div class="metric__value"><strong id="baptizedRate">0%</strong></div>
+          <div class="mini-progress"><span id="baptizedProgress"></span></div>
+          <small id="baptizedCaption">0 de 0 inscritos</small>
+        </article>
+
+        <article class="metric">
+          <p>Participam de célula</p>
+          <div class="metric__value"><strong id="cellRate">0%</strong></div>
+          <div class="mini-progress"><span id="cellProgress"></span></div>
+          <small id="cellCaption">0 de 0 inscritos</small>
+        </article>
+      </section>
+
+      <section class="dashboard-heading">
+        <div>
+          <p class="section-kicker">PERFIL DOS PARTICIPANTES</p>
+          <h2>Quem estará conosco</h2>
+        </div>
+        <p id="lastUpdate">Atualização em andamento</p>
+      </section>
+
+      <section class="charts-grid">
+        <article class="chart-card chart-card--donut">
+          <div class="chart-card__head">
+            <div>
+              <span class="chart-card__index">01</span>
+              <h3>Estado civil</h3>
+            </div>
+            <span class="chart-card__badge" id="maritalHighlight">Perfil predominante</span>
+          </div>
+          <div class="chart-card__body chart-card__body--donut">
+            <div class="chart-wrap chart-wrap--donut"><canvas id="maritalChart"></canvas></div>
+            <div class="chart-legend" id="maritalLegend"></div>
+          </div>
+        </article>
+
+        <article class="chart-card chart-card--wide">
+          <div class="chart-card__head">
+            <div>
+              <span class="chart-card__index">02</span>
+              <h3>Distribuição por faixa etária</h3>
+            </div>
+            <span class="chart-card__meta" id="ageHighlight">Concentração principal</span>
+          </div>
+          <div class="chart-wrap chart-wrap--bars"><canvas id="ageChart"></canvas></div>
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-card__head">
+            <div>
+              <span class="chart-card__index">03</span>
+              <h3>Batismo nas águas</h3>
+            </div>
+          </div>
+          <div class="chart-card__body chart-card__body--donut">
+            <div class="chart-wrap chart-wrap--donut"><canvas id="baptismChart"></canvas></div>
+            <div class="chart-legend" id="baptismLegend"></div>
+          </div>
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-card__head">
+            <div>
+              <span class="chart-card__index">04</span>
+              <h3>Participação em célula</h3>
+            </div>
+          </div>
+          <div class="chart-card__body chart-card__body--donut">
+            <div class="chart-wrap chart-wrap--donut"><canvas id="cellChart"></canvas></div>
+            <div class="chart-legend" id="cellLegend"></div>
+          </div>
+        </article>
+
+        <article class="chart-card chart-card--wide">
+          <div class="chart-card__head">
+            <div>
+              <span class="chart-card__index">05</span>
+              <h3>Participação anterior em Encontro</h3>
+            </div>
+            <span class="chart-card__meta">Histórico dos inscritos</span>
+          </div>
+          <div class="chart-wrap chart-wrap--bars"><canvas id="encounterChart"></canvas></div>
+        </article>
+
+        <article class="chart-card chart-card--wide">
+          <div class="chart-card__head">
+            <div>
+              <span class="chart-card__index">06</span>
+              <h3>Igreja do inscrito</h3>
+            </div>
+            <span class="chart-card__meta">Vínculo declarado</span>
+          </div>
+          <div class="chart-wrap chart-wrap--horizontal"><canvas id="churchChart"></canvas></div>
+        </article>
+
+        <article class="chart-card chart-card--full chart-card--churches">
+          <div class="chart-card__head">
+            <div>
+              <span class="chart-card__index">07</span>
+              <h3>Outras igrejas e INOVIs</h3>
+            </div>
+            <span class="chart-card__meta" id="otherChurchesCount">0 respostas detalhadas</span>
+          </div>
+          <div class="chart-wrap chart-wrap--horizontal chart-wrap--large">
+            <canvas id="otherChurchesChart"></canvas>
+          </div>
+        </article>
+      </section>
+
+      <footer class="footer">
+        <div class="footer__line"></div>
+        <div>
+          <strong>HOMENS FACE A FACE COM DEUS</strong>
+          <span>9 a 11 de outubro de 2026</span>
+        </div>
+        <p>Dados consolidados da planilha de inscrições.</p>
+      </footer>
+    </main>
+  </body>
+</html>
