@@ -373,16 +373,20 @@ function updateMetrics(rows) {
 }
 
 function renderDashboard(rows, source) {
-  updateMetrics(rows);
+  // Linhas marcadas como ERRO na coluna Confirmação não representam
+  // inscrições válidas e ficam fora de todos os indicadores e gráficos.
+  const validRows = rows.filter((row) => normalize(row.confirmation) !== "erro");
 
-  const marital = countBy(rows, "marital");
-  const age = ageBuckets(rows);
-  const baptism = countBy(rows, "baptism");
-  const cell = countBy(rows, "cell");
-  const encounter = countBy(rows, "encounter");
-  const church = countBy(rows, "church");
+  updateMetrics(validRows);
+
+  const marital = countBy(validRows, "marital");
+  const age = ageBuckets(validRows);
+  const baptism = countBy(validRows, "baptism");
+  const cell = countBy(validRows, "cell");
+  const encounter = countBy(validRows, "encounter");
+  const church = countBy(validRows, "church");
   const otherChurches = countBy(
-    rows.filter((row) => String(row.otherChurch || "").trim()),
+    validRows.filter((row) => String(row.otherChurch || "").trim()),
     "otherChurch",
   );
 
@@ -395,7 +399,7 @@ function renderDashboard(rows, source) {
   renderBar("otherChurchesChart", otherChurches.length ? otherChurches : [["Sem respostas", 0]], true);
 
   document.getElementById("maritalHighlight").textContent = marital[0]
-    ? `${marital[0][0]} · ${percentage(marital[0][1], rows.length)}%`
+    ? `${marital[0][0]} · ${percentage(marital[0][1], validRows.length)}%`
     : "Sem respostas";
   document.getElementById("ageHighlight").textContent = age[0]
     ? `Maior grupo: ${age.slice().sort((a, b) => b[1] - a[1])[0][0]} anos`

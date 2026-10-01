@@ -83,8 +83,8 @@ button {
 
 .hero__image {
   background-image:
-    url("assets/evento-face-a-face.jpeg"),
-    url("evento-face-a-face.jpeg");
+    url("assets/evento-face-a-face-sem-texto.png"),
+    url("evento-face-a-face-sem-texto.png");
   background-position: center 27%;
   background-size: cover;
   filter: saturate(0.88) contrast(1.06);
