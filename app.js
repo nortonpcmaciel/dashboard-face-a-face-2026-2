@@ -344,31 +344,32 @@ function renderBar(canvasId, entries, horizontal = false) {
   );
 }
 
-function updateMetrics(rows) {
-  const ages = rows.map((row) => parseAge(row.age)).filter(Number.isFinite);
-  rows.forEach((row) => { row.age = parseAge(row.age); });
-  const total = rows.length;
-  const baptized = yesCount(rows, "baptism");
-  const cellParticipants = yesCount(rows, "cell");
-  const confirmed = rows.filter((row) => normalize(row.confirmation) === "pago").length;
+function updateMetrics(registrationRows, analysisRows) {
+  const ages = analysisRows.map((row) => parseAge(row.age)).filter(Number.isFinite);
+  analysisRows.forEach((row) => { row.age = parseAge(row.age); });
+  const registrationsTotal = registrationRows.length;
+  const analysisTotal = analysisRows.length;
+  const baptized = yesCount(analysisRows, "baptism");
+  const cellParticipants = yesCount(analysisRows, "cell");
+  const confirmed = analysisTotal;
   const average = ages.length ? Math.round(ages.reduce((sum, age) => sum + age, 0) / ages.length) : 0;
   const min = ages.length ? Math.min(...ages) : 0;
   const max = ages.length ? Math.max(...ages) : 0;
-  const baptizedPercent = percentage(baptized, total);
-  const cellPercent = percentage(cellParticipants, total);
-  const confirmedPercent = percentage(confirmed, total);
+  const baptizedPercent = percentage(baptized, analysisTotal);
+  const cellPercent = percentage(cellParticipants, analysisTotal);
+  const confirmedPercent = percentage(confirmed, registrationsTotal);
 
-  document.getElementById("totalRegistrations").textContent = total.toLocaleString("pt-BR");
+  document.getElementById("totalRegistrations").textContent = registrationsTotal.toLocaleString("pt-BR");
   document.getElementById("confirmedCount").textContent = confirmed.toLocaleString("pt-BR");
-  document.getElementById("confirmedCaption").textContent = `${confirmed} com confirmação PAGO`;
+  document.getElementById("confirmedCaption").textContent = "pago/agendado";
   document.getElementById("confirmedProgress").style.width = `${confirmedPercent}%`;
   document.getElementById("averageAge").textContent = average;
   document.getElementById("ageRange").textContent = `Faixa de ${min} a ${max} anos`;
   document.getElementById("baptizedRate").textContent = `${baptizedPercent}%`;
-  document.getElementById("baptizedCaption").textContent = `${baptized} de ${total} inscritos`;
+  document.getElementById("baptizedCaption").textContent = `${baptized} de ${analysisTotal} inscritos`;
   document.getElementById("baptizedProgress").style.width = `${baptizedPercent}%`;
   document.getElementById("cellRate").textContent = `${cellPercent}%`;
-  document.getElementById("cellCaption").textContent = `${cellParticipants} de ${total} inscritos`;
+  document.getElementById("cellCaption").textContent = `${cellParticipants} de ${analysisTotal} inscritos`;
   document.getElementById("cellProgress").style.width = `${cellPercent}%`;
 }
 
@@ -376,19 +377,23 @@ function renderDashboard(rows, source) {
   // Linhas marcadas como ERRO na coluna Confirmação não representam
   // inscrições válidas e ficam fora de todos os indicadores e gráficos.
   const validRows = rows.filter((row) => normalize(row.confirmation) !== "erro");
+  const analysisRows = validRows.filter((row) => {
+    const confirmation = normalize(row.confirmation);
+    return confirmation === "pago" || confirmation === "pagar";
+  });
 
-  updateMetrics(validRows);
+  updateMetrics(validRows, analysisRows);
 
-  const marital = countBy(validRows, "marital");
-  const age = ageBuckets(validRows);
-  const baptism = countBy(validRows, "baptism");
-  const cell = countBy(validRows, "cell");
-  const encounter = countBy(validRows, "encounter");
-  const church = countBy(validRows, "church");
+  const marital = countBy(analysisRows, "marital");
+  const age = ageBuckets(analysisRows);
+  const baptism = countBy(analysisRows, "baptism");
+  const cell = countBy(analysisRows, "cell");
+  const encounter = countBy(analysisRows, "encounter");
+  const church = countBy(analysisRows, "church");
   const otherChurches = countBy(
-    validRows.filter((row) => String(row.otherChurch || "").trim()),
+    analysisRows.filter((row) => String(row.otherChurch || "").trim()),
     "otherChurch",
-  );
+  ).map(([label, count]) => [label.toLocaleUpperCase("pt-BR"), count]);
 
   renderDonut("maritalChart", "maritalLegend", marital);
   renderBar("ageChart", age);
@@ -399,7 +404,7 @@ function renderDashboard(rows, source) {
   renderBar("otherChurchesChart", otherChurches.length ? otherChurches : [["Sem respostas", 0]], true);
 
   document.getElementById("maritalHighlight").textContent = marital[0]
-    ? `${marital[0][0]} · ${percentage(marital[0][1], validRows.length)}%`
+    ? `${marital[0][0]} · ${percentage(marital[0][1], analysisRows.length)}%`
     : "Sem respostas";
   document.getElementById("ageHighlight").textContent = age[0]
     ? `Maior grupo: ${age.slice().sort((a, b) => b[1] - a[1])[0][0]} anos`
@@ -422,7 +427,7 @@ function setConnectionState(state) {
 
   if (state === "live") {
     control.classList.add("is-live");
-    label.textContent = "Dados ao vivo";
+    label.textContent = "Atualizar";
   } else if (state === "offline") {
     control.classList.add("is-offline");
     label.textContent = "Retrato local";
