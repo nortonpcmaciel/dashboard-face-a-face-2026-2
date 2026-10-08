@@ -374,9 +374,12 @@ function updateMetrics(registrationRows, analysisRows) {
 }
 
 function renderDashboard(rows, source) {
-  // Linhas marcadas como ERRO na coluna Confirmação não representam
-  // inscrições válidas e ficam fora de todos os indicadores e gráficos.
-  const validRows = rows.filter((row) => normalize(row.confirmation) !== "erro");
+  // Linhas marcadas como ERRO ou DESISTIU na coluna Confirmação não
+  // representam inscrições válidas e ficam fora de todos os cálculos.
+  const excludedConfirmations = new Set(["erro", "desistiu"]);
+  const validRows = rows.filter(
+    (row) => !excludedConfirmations.has(normalize(row.confirmation)),
+  );
   const analysisRows = validRows.filter((row) => {
     const confirmation = normalize(row.confirmation);
     return confirmation === "pago" || confirmation === "pagar";
